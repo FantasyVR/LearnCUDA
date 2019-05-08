@@ -5,16 +5,18 @@
 #define STBI_MSC_SECURE_CRT
 #include <stb_image_write.h>
 #include <iostream>
-__global__ void HW1(unsigned char * d_out, unsigned char * d_in)
+__global__ void HW1(uchar3 * d_out, uchar3 * d_in)
 {
 	int threadId = blockIdx.x * blockDim.x + threadIdx.x;
-	printf("trheadIdx is: %d \n", threadId);
+	//printf("trheadIdx is: %d \n", threadId);
+	float color = .299f * d_in[threadId].x + .587f * d_in[threadId].y + .114f *  d_in[threadId].z;
 	d_out[threadId] = d_in[threadId];
 }
 
-void color2gray(imageInfo* ii,unsigned char * h_out)
+void color2gray(imageInfo* ii, uchar3 * h_out)
 {
-	unsigned char * d_in, unsigned char * d_out;
+	uchar3 *d_in;
+	uchar3*d_out;
 
 	int numPixels = ii->resolution;
 	// allocate memory on GPU for picture
@@ -65,7 +67,7 @@ bool readImage(const char * filename, imageInfo* ii)
 	return true;
 }
 
-void writeImage(const char* filename, imageInfo* ii, const unsigned char *h_out)
+void writeImage(const char* filename, imageInfo* ii, const uchar3 *h_out)
 {
 	int res = stbi_write_jpg(filename, ii->width, ii->height, 3, h_out, 0);
 	if (res == 0)
@@ -79,14 +81,22 @@ void writeImage(const char* filename, imageInfo* ii, const unsigned char *h_out)
 void exec(const char * inputFile, const char * outputFile)
 {
 	// 读取图片
-	imageInfo test;
-	imageInfo* ii = &test;
+	imageInfo* ii = new imageInfo();
 	bool res = readImage(inputFile, ii);
 	if (!res) return;
 	// 将图片灰度化
-	unsigned char *h_out = {};
+	uchar3 *h_out = (uchar3*)malloc(sizeof(uchar3) * ii->height * ii->width);
+	if (h_out == NULL)
+	{
+		std::cout << "Failed to malloc h_out space" << std::endl;
+		return;
+	}
 	color2gray(ii,h_out);
 	// 保存灰度图片
 	writeImage(outputFile, ii, h_out);
+	// 释放空间
+	free(ii);
+	free(h_out);
+	h_out = NULL;
 	stbi_image_free(ii->image);
 }
