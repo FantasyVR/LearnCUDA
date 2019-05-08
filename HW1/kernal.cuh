@@ -32,12 +32,12 @@ void check(T result, char const *const func, const char *const file,
 			exit(EXIT_FAILURE);
 	}
 }
-__global__ void HW1(uchar3* d_out, uchar3* d_in);
+__global__ void HW1(unsigned char* grayImage, uchar3* rgbImage);
 
 
 bool readImage(const char* filename, imageInfo* ii);
-void writeImage(const char* filename, imageInfo* ii, const uchar3 *d_out);
-void color2gray(imageInfo* ii, uchar3* h_out);
+void writeImage(const char* filename, imageInfo* ii, const unsigned char *h_grayImage);
+void color2gray(imageInfo* ii, unsigned char* h_grayImage);
 
 void exec(const char* inputFile, const char* outputFile);
 #endif // 
