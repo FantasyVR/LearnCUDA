@@ -8,3 +8,4 @@ add_definitions(-DDATAPATH="${PROJECT_SOURCE_DIR}/resource/")
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 add_subdirectory(HW1)
+add_subdirectory(HW2)
